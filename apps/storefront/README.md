@@ -6,13 +6,13 @@ Pages and filters live in the hash (`#collection?q=…&c=…`, `#cart`, `#confir
 
 Every product has three color choices, defined in `src/variants.ts` with stable variant IDs. Selecting a color shows its corresponding photograph. Every color has the same gallery views as the original: studio angles, details, backgrounds and lifestyle scenes where available. Alternate-color contact sheets use explicit tile coordinates so main photos and thumbnails show the same square view. Alternate-color photos are generated using the original product as a reference. The lunch box varies its retaining band's color while keeping the steel box and bamboo lid unchanged.
 
-The cart records product and variant IDs, groups repeated additions of the same variant and keeps different colors on separate lines. All colors of a product share its fixture price. Color selection survives category/search changes and visits to the cart within the current page session. No model selects colors automatically.
+The cart records product and variant IDs, groups repeated additions of the same variant and keeps different colors on separate lines. Each line has a quantity stepper and a Remove action; the subtotal, shipping and demo total update in place. All colors of a product share its fixture price. Color selection survives category/search changes and visits to the cart within the current page session. No model selects colors automatically. Adding an item shows a brief confirmation that links to the cart and dismisses itself after a few seconds.
 
 When shipping details are visible, the cart restates the same fixture terms as the hero — free over $50, $5 flat rate otherwise — and the demo total adds the flat rate. With shipping hidden, delivery terms stay out of the cart, which is the measurable difference the shipping-visible variant provides.
 
 The demo keeps the same product, price and cart identity while changing the context in which it is shown. Search wording expresses an interest in a use case; it does not establish who a person is.
 
-The catalog now has 16 products. The daypack and rain jacket remain the detailed multi-context examples. Twelve additional versatile products broaden the range of shopping tasks, materials, prices and presentation candidates.
+The catalog now has 30 products. The latest eight additions are a canvas crossbody, laptop sleeve, wash bag, cotton overshirt, woven scarf, linen cushion, travel flask and card wallet. Each has three colors with studio, naturally styled and in-use views for every color. Six recent additions are a folding umbrella, cotton cap, portable speaker, phone stand, packing cubes and ceramic planter, each with three colors and a three-photo gallery. The daypack and rain jacket remain the detailed multi-context examples. Twelve additional versatile products broaden the range of shopping tasks, materials, prices and presentation candidates.
 
 | Product                | City commute       | Campus                  | Family days                 | Trails             | Other views                            |
 | ---------------------- | ------------------ | ----------------------- | --------------------------- | ------------------ | -------------------------------------- |
@@ -23,7 +23,7 @@ The catalog now has 16 products. The daypack and rain jacket remain the detailed
 
 ## Try it
 
-Start the shop and submit a phrase such as `rain jacket for campus`, `work bag`, `hiking gear` or `family park`, or pick one of the example chips below the search field. The headline, collection heading, ordering and lead image change together. Every photo remains available through the thumbnails. Clearing the search restores the baseline headline and order, with product-focused still-life photos leading each product gallery (textured/tabletop settings where available, otherwise the studio view). Studio, detail and alternate-setting views remain available through thumbnails.
+Start the shop and submit a phrase such as `rain jacket for campus`, `work bag`, `hiking gear` or `family park`. The headline, collection heading, ordering and lead image change together. Every photo remains available through the thumbnails: the strip is a single tab stop and the arrow keys (plus Home and End) move between views. Clearing the search restores the baseline headline and order, with a curated mix of natural still lifes and scenes in use leading the products. Plain studio photos remain available inside each gallery. Studio, detail and alternate-setting views remain available through thumbnails.
 
 The search policy is a local deterministic keyword demo, not a model or measured personalization result. A product-specific term outweighs a contextual ranking boost. Unknown queries preserve the baseline. Current search state stays in memory for this visit; there is no browsing-history collection or external inference request.
 
@@ -34,7 +34,7 @@ The search policy is a local deterministic keyword demo, not a model or measured
 - `src/images.ts`: image IDs, source paths, captions, alt text, context and descriptive tags. Studio triptychs use explicit crop positions; each lifestyle image is its own file.
 - `src/personalization.ts`: replaceable query-to-context and ranking policy.
 - `src/ProductGallery.tsx`: displays a chosen image and lets the shopper override it.
-- `public/products/`: image assets and generation prompts. Images are AI-generated fixture media. Existing product reference images anchor identity across contexts.
+- `public/products/`: image assets and generation prompts. Images are AI-generated fixture media. Existing product reference images anchor identity across contexts. The four studio triptychs are stored as compressed JPEGs (converted from PNG) to keep the initial payload small.
 
 Use `pnpm --filter @storefront/storefront test` to check intent ranking, baseline fallback, image compatibility and asset existence. `pnpm --filter @storefront/storefront build` checks types and bundles the page.
 
@@ -63,3 +63,7 @@ The additional catalog covers a steel bottle, canvas tote, woven throw, portable
 `fixtures/shopper-personas.json` contains 11 synthetic asset briefs: campus student, focused commuter, family outing organizer, weekend wanderer, remote worker, active routine shopper, everyday walker, quiet homebody, light traveler, city explorer and creative hobbyist. Each records a shopping goal, compatible candidate product/image IDs and open visual questions. They are examples for exploring the catalog, not automatic recommendations, learned preference labels, or the development/held-out personas used by the experiment harness.
 
 Lifestyle casting varies across the catalog, while product-only alternatives remain available for every item. No persona picker, new ranking model, model endpoint or automatic visual-preference policy is added. The existing local search demo simply recognizes the new product names and related terms. Prices are local fixture values, not real merchant offers.
+
+The hero cycles every six seconds through dedicated 2:1 photo pairs for up to four featured products from the visible collection. Six products have wide editorial assets (12 photographs total), mixing natural still lifes with scenes in use. Source boards and the exact built-in generation prompts are documented in `public/products/HERO-PROMPTS.md`. Photos loop automatically without navigation, counters or playback controls; hovering and focusing do not interrupt playback. Hero links show product names without prices; prices remain on the product cards.
+
+Product cards show one short material or construction detail from the fixture catalog. Galleries initially show three previews and a count button to reveal the remaining views; arrow-key navigation reveals all views. On mobile, the category strip leaves the next image partially visible as a swipe hint. All filters uses a sliders icon, with theme swatches inside the menu.

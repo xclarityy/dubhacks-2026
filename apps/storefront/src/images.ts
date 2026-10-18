@@ -1,5 +1,6 @@
 import type { Product } from "./config";
 import { ADDITIONAL_PRODUCTS } from "./catalog-expansion";
+import { NEW_PRODUCTS } from "./catalog-new-products";
 
 export type ImageContext = "studio" | "outdoors" | "city" | "campus" | "family" | "everyday";
 type Presentation = {
@@ -23,7 +24,7 @@ export type ProductImage = {
 function studioImages(productId: Product["id"], name: string): ProductImage[] {
   return ["Front", "Back", "Detail"].map((label, index) => ({
     id: `${productId}-${label.toLowerCase()}`,
-    src: `/products/${productId}-views.png`,
+    src: `/products/${productId}-views.jpg`,
     label,
     alt: `${name} — ${label.toLowerCase()} view`,
     context: "studio",
@@ -35,6 +36,7 @@ function studioImages(productId: Product["id"], name: string): ProductImage[] {
     },
     tags: ["product", label.toLowerCase()],
     position: `${index * 50}% center`,
+    tile: { columns: 3, rows: 1, index, sheetAspect: 3 },
   }));
 }
 
@@ -208,6 +210,50 @@ const originalImages = {
 };
 
 const stillLifePresentations: Record<(typeof ADDITIONAL_PRODUCTS)[number]["id"], Presentation> = {
+  crossbody: {
+    subject: "product",
+    background: "wood",
+    tone: "natural",
+    composition: "full-product",
+  },
+  sleeve: { subject: "product", background: "wood", tone: "natural", composition: "full-product" },
+  washbag: {
+    subject: "product",
+    background: "textured",
+    tone: "natural",
+    composition: "full-product",
+  },
+  overshirt: {
+    subject: "product",
+    background: "wood",
+    tone: "natural",
+    composition: "full-product",
+  },
+  scarf: { subject: "product", background: "wood", tone: "natural", composition: "full-product" },
+  cushion: {
+    subject: "product",
+    background: "location",
+    tone: "natural",
+    composition: "full-product",
+  },
+  flask: { subject: "product", background: "wood", tone: "natural", composition: "full-product" },
+  wallet: { subject: "product", background: "wood", tone: "natural", composition: "full-product" },
+  umbrella: {
+    subject: "product",
+    background: "textured",
+    tone: "natural",
+    composition: "full-product",
+  },
+  cap: { subject: "product", background: "wood", tone: "natural", composition: "full-product" },
+  speaker: { subject: "product", background: "wood", tone: "warm", composition: "full-product" },
+  stand: { subject: "product", background: "wood", tone: "light", composition: "full-product" },
+  cubes: { subject: "product", background: "wood", tone: "warm", composition: "full-product" },
+  planter: {
+    subject: "product",
+    background: "textured",
+    tone: "light",
+    composition: "full-product",
+  },
   bottle: {
     subject: "product",
     background: "textured",
@@ -272,6 +318,7 @@ const additionalImages: [string, ProductImage[]][] = ADDITIONAL_PRODUCTS.map((pr
       alt: `${product.name} on a plain ivory studio background`,
       context: "studio",
       position: "0% center",
+      tile: { columns: 3, rows: 1, index: 0, sheetAspect: 3 },
       tags: ["product-only", "studio", ...product.searchTerms],
       presentation: {
         subject: "product",
@@ -287,6 +334,7 @@ const additionalImages: [string, ProductImage[]][] = ADDITIONAL_PRODUCTS.map((pr
       alt: product.stillLife,
       context: "studio",
       position: "50% center",
+      tile: { columns: 3, rows: 1, index: 1, sheetAspect: 3 },
       tags: ["product-only", "still-life", ...product.searchTerms],
       presentation: stillLifePresentations[product.id],
     },
@@ -297,6 +345,7 @@ const additionalImages: [string, ProductImage[]][] = ADDITIONAL_PRODUCTS.map((pr
       alt: product.lifestyle,
       context: product.context,
       position: "100% center",
+      tile: { columns: 3, rows: 1, index: 2, sheetAspect: 3 },
       tags: ["in-use", product.scenario, ...product.searchTerms],
       presentation: {
         subject: "in-use",
@@ -311,12 +360,7 @@ const additionalImages: [string, ProductImage[]][] = ADDITIONAL_PRODUCTS.map((pr
 const tabletopImages: Partial<Record<Product["id"], ProductImage>> = Object.fromEntries(
   [
     ["mug", "Trail mug", "tabletop", "oatmeal linen and pale oak in soft window light"],
-    [
-      "pack",
-      "Everyday daypack",
-      "tabletop-v3",
-      "a wooden entryway bench beside the front door",
-    ],
+    ["pack", "Everyday daypack", "tabletop-v3", "a wooden entryway bench beside the front door"],
     [
       "notebook",
       "Pocket field notes",
@@ -353,12 +397,32 @@ const tabletopImages: Partial<Record<Product["id"], ProductImage>> = Object.from
 );
 
 export const PRODUCT_IMAGES = Object.fromEntries(
-  [...Object.entries(originalImages), ...additionalImages].map(([id, images]) => [
-    id,
-    tabletopImages[id as Product["id"]]
-      ? [...images, tabletopImages[id as Product["id"]]!]
-      : images,
-  ]),
+  [...Object.entries(originalImages), ...additionalImages].map(([id, images]) => {
+    const sharedColors = NEW_PRODUCTS.some((product) => product.id === id);
+    const views = images.map((image, index): ProductImage => {
+      if (id === "notebook" && image.id === "notebook-outdoors") {
+        return {
+          ...image,
+          src: "/products/notebook-paper.jpg",
+          alt: "A person writing on the cream paper pages of the open notebook at a lakeside picnic table",
+          tile: { columns: 3, rows: 1, index: 0, sheetAspect: 3 },
+        };
+      }
+      return sharedColors
+        ? {
+            ...image,
+            src: `/products/${id}-color-gallery.jpg`,
+            tile: { columns: 3, rows: 3, index, sheetAspect: 1 },
+          }
+        : image;
+    });
+    return [
+      id,
+      tabletopImages[id as Product["id"]]
+        ? [...views, tabletopImages[id as Product["id"]]!]
+        : views,
+    ];
+  }),
 ) as Record<Product["id"], ProductImage[]>;
 
 export function selectProductImage(productId: Product["id"], context: ImageContext): ProductImage {
@@ -372,6 +436,50 @@ export function selectProductImage(productId: Product["id"], context: ImageConte
   return (
     images.find((image) => image.context === context) ??
     images.find((image) => image.context === fallback) ??
+    images[0]
+  );
+}
+
+// Mix natural product arrangements with scenes in use across the storefront.
+const stillLifeLeads = new Set<string>([
+  "sleeve",
+  "washbag",
+  "cushion",
+  "flask",
+  "wallet",
+  "mug",
+  "notebook",
+  "bottle",
+  "blanket",
+  "headphones",
+  "sneakers",
+  "duffel",
+  "sunglasses",
+  "stand",
+  "cubes",
+  "planter",
+  "lunchbox",
+]);
+
+export function selectShowcaseImage(
+  productId: Product["id"],
+  context: ImageContext,
+  images = PRODUCT_IMAGES[productId],
+): ProductImage {
+  if (productId === "organizer") return images[1] ?? images[0];
+  const naturalStillLife = images.find(
+    (image) =>
+      image.presentation.subject === "product" &&
+      image.presentation.background !== "plain" &&
+      image.presentation.composition !== "detail",
+  );
+  const lifestyle = images.filter((image) => image.presentation.subject === "in-use");
+  return (
+    (stillLifeLeads.has(productId) ? naturalStillLife : undefined) ??
+    lifestyle.find((image) => image.context === context) ??
+    lifestyle.find((image) => image.context === "everyday") ??
+    lifestyle[0] ??
+    naturalStillLife ??
     images[0]
   );
 }
